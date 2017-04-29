@@ -19,12 +19,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Home Page");
-        toolbar.inflateMenu(R.menu.menu_main);
-
+        setUpToolbar();
         setUpRecyclerView();
+    }
+
+    private void setUpToolbar() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Multiple Rows Layout Demo");
+        toolbar.inflateMenu(R.menu.menu_main);
     }
 
     private void setUpRecyclerView() {
