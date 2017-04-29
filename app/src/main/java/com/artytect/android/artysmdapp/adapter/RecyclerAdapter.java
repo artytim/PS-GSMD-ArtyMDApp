@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,20 +16,19 @@ import com.artytect.android.artysmdapp.model.Landscape;
 
 import java.util.List;
 
-import static android.content.ContentValues.TAG;
-
 public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
-    List<Landscape> mData;
+    private static final String TAG = RecyclerAdapter.class.getSimpleName();
+    List<Landscape> mDataList;
     private LayoutInflater inflater;
 
     public RecyclerAdapter(Context context, List<Landscape> data) {
         inflater = LayoutInflater.from(context);
-        this.mData = data;
+        this.mDataList = data;
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d(TAG, "onCreateViewHolder");
+        Log.i(TAG, "onCreateViewHolder");
         View view = inflater.inflate(R.layout.list_item, parent, false);
         MyViewHolder holder = new MyViewHolder(view);
         return holder;
@@ -36,17 +36,32 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Log.d(TAG, "onBindViewHolder" + position);
-        Landscape current = mData.get(position);
+        Log.i(TAG, "onBindViewHolder" + position);
+        Landscape current = mDataList.get(position);
         holder.setData(current, position);
+        holder.setListeners();
     }
 
     @Override
     public int getItemCount() {
-        return mData.size();
+        return mDataList.size();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    public void removeItem(int position) {
+        mDataList.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mDataList.size());
+//		notifyDataSetChanged();  // No animation! Expensive - redraw ALL items in Adapter
+    }
+
+    public void addItem(int position, Landscape landscape) {
+        mDataList.add(position, landscape);
+        notifyItemInserted(position);
+        notifyItemRangeChanged(position, mDataList.size());
+//		notifyDataSetChanged();  // No animation! Expensive - redraw ALL items in Adapter
+    }
+
+    class MyViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
         TextView title;
         ImageView imgThumb, imgDelete, imgAdd;
         int position;
@@ -66,7 +81,27 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
             this.position = position;
             this.current = current;
         }
-    }
 
+        public void setListeners() {
+            imgDelete.setOnClickListener(MyViewHolder.this);
+            imgAdd.setOnClickListener(MyViewHolder.this);
+            imgThumb.setOnClickListener(MyViewHolder.this);
+        }
+
+        @Override
+        public void onClick(View v) {
+//			Log.i("onClick before operation", position + " " + mDataList.size());
+            switch (v.getId()) {
+                case R.id.img_row_delete:
+                    removeItem(position);
+                    break;
+
+                case R.id.img_row_add:
+                    addItem(position, current);
+                    break;
+            }
+//			Log.i("onClick after operation", mDataList.size() + " \n\n" + mDataList.toString());
+        }
+    }
 }
 
